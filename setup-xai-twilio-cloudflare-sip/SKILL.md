@@ -71,6 +71,49 @@ In Twilio Console:
 
 Do not configure Twilio Origination to the xAI raw IP unless xAI support explicitly tells the user to do so.
 
+## Human Transfer Routing
+
+If the xAI agent should transfer callers to a human, configure both xAI and Twilio. Setting only the xAI `transfer_call` tool is not enough; Twilio must allow SIP REFER transfer on the Elastic SIP Trunk.
+
+In xAI Console:
+
+1. Open the target Voice Agent.
+2. Under **Configuration > Advanced > Tools**, add or edit `transfer_call`.
+3. Add a destination:
+   - Label: `Human administrator` or a role-specific label.
+   - Destination: a valid E.164 number, for example `+15557654321`.
+4. Update the tool description with when the agent should transfer.
+5. Update the agent instructions so it explicitly uses `transfer_call`, not just says it will transfer.
+6. Publish the agent and reopen the tool to verify the destination persisted.
+
+Example transfer prompt language:
+
+```text
+Use transfer_call immediately when callers ask for an administrator, manager,
+someone in charge, a human, a live representative, appointment booking,
+scheduling, intake, assessments, or anything you cannot confidently handle.
+
+Before using transfer_call, say one short sentence such as:
+"Let me transfer you to someone who can help with that."
+
+If transfer_call fails or the human line does not answer, collect the caller's
+name, phone number, email if available, and reason for the call.
+```
+
+In Twilio Console:
+
+1. Open the Elastic SIP Trunk.
+2. Go to **General**.
+3. Enable **Call Transfer (SIP REFER)**.
+4. Check **Enable PSTN Transfer** if the transfer destination is a normal phone number.
+5. Set **Caller ID for Transfer Target** to **Set caller ID as Transferor**. This avoids PSTN rejection caused by forwarding the outside caller's unverified caller ID.
+6. Save, reload the General page, and verify:
+   - `Call Transfer (SIP REFER)` is `Enabled`.
+   - `Enable PSTN Transfer` remains checked.
+   - `Caller ID for Transfer Target` remains `Set caller ID as Transferor`.
+
+If the agent beeps and says the transfer did not go through, check Twilio's General trunk settings first. The common fix is enabling SIP REFER, enabling PSTN transfer, and using Transferor caller ID.
+
 ## xAI Console Checklist
 
 In xAI Console:
@@ -182,6 +225,7 @@ Interpret common findings:
 - **Twilio `32011` warning**: Twilio could not communicate with the SIP endpoint. Check Origination URI. If it uses raw IP, change to `sip:{number}@sip.voice.x.ai;transport=tls`.
 - **Twilio call fails at 0 seconds, no xAI Voice log**: Twilio reached trunk flow but xAI did not admit/start the call. Check xAI allowed addresses and Direct SIP number assignment.
 - **xAI Voice log exists but call failed**: SIP admission worked. Inspect xAI conversation/session errors, agent publish state, model/voice configuration, and webhook Worker logs if API-controlled.
+- **Agent says transfer failed after a beep**: xAI likely invoked `transfer_call`, but Twilio rejected or could not complete the SIP REFER/PSTN transfer. Enable Twilio trunk **Call Transfer (SIP REFER)**, check **Enable PSTN Transfer**, and set transfer caller ID to **Transferor**.
 - **xAI webhook reaches Worker but call fails**: Check signature verification, `call_id` extraction, `waitUntil`, WebSocket upgrade status `101`, and API key validity.
 - **Worker health OK but no webhook logs**: Twilio is not routed into the API-controlled xAI phone-number route, or xAI did not admit the SIP call.
 
@@ -194,6 +238,7 @@ A setup is not proven until a real inbound call succeeds. Before asking the user
 - xAI number is assigned to the intended agent.
 - xAI allowed addresses include all eight Twilio signaling CIDRs.
 - Agent is published/current.
+- For human transfer: xAI `transfer_call` has a valid E.164 destination, and Twilio General settings have SIP REFER enabled, PSTN transfer checked, and caller ID set to Transferor.
 - Worker `/health` returns `200` if using the Worker path.
 - Worker tests/typecheck pass if code was changed.
 
