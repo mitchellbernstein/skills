@@ -47,7 +47,11 @@ metadata.
 
 ## Current skills
 
+- `*/delegate-to-agent`: Choose an explicit local worker CLI—Pi/DeepSeek, OpenAI Codex, Claude Code, or Grok Build—and delegate bounded coding work with target-specific model and permission handling.
 - `*/delegate-to-pi`: Delegate bounded implementation work to local Pi using DeepSeek V4 Flash by default; bootstraps Pi and refreshes its model catalog when needed, then the host agent supervises and verifies. Copies are available for Codex, Claude Code, Cursor, and Grok Build.
 - `*/setup-xai-twilio-cloudflare-sip`: Configure and debug xAI Voice Agent phone routing through Twilio and optional Cloudflare Workers. Copies are available for all four harness sections.
+
+`delegate-to-pi` remains for backwards compatibility. Use `delegate-to-agent`
+when the task should explicitly select Codex, Claude, Grok Build, or Pi.
 
 See [`catalog.yaml`](catalog.yaml) for machine-readable paths and compatibility.

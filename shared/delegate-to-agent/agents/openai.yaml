@@ -1,0 +1,6 @@
+interface:
+  display_name: "Delegate to Agent CLI"
+  short_description: "Delegate bounded coding work to Pi, Codex, Claude, or Grok"
+  default_prompt: "Use $delegate-to-agent to choose an explicit local agent CLI/model, delegate bounded work, then review and verify its changes."
+policy:
+  allow_implicit_invocation: true

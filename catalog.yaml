@@ -20,6 +20,29 @@ harnesses:
     description: Skills intended to work across harnesses; verify each SKILL.md.
 
 skills:
+  - id: delegate-to-agent
+    path: shared/delegate-to-agent
+    canonical_path: shared/delegate-to-agent
+    copies:
+      codex: codex/delegate-to-agent
+      claude: claude/delegate-to-agent
+      cursor: cursor/delegate-to-agent
+      grok-build: grok-build/delegate-to-agent
+    harnesses: [codex, claude, cursor, grok-build]
+    targets: [pi, codex, claude, grok-build]
+    default_models:
+      pi: deepseek-v4-flash
+      codex: gpt-5.6-sol
+      claude: sonnet
+      grok-build: grok-4.5
+    requires:
+      - one selected native CLI (Pi, Codex, Claude Code, or Grok Build)
+      - authentication configured by that native CLI
+      - Node.js/npm only when the runner bootstraps missing Pi
+    bootstraps_pi_only: true
+    mutates_workspace: true
+    mutates_user_environment: true
+
   - id: delegate-to-pi
     path: shared/delegate-to-pi
     canonical_path: shared/delegate-to-pi
