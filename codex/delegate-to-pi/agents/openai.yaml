@@ -1,0 +1,6 @@
+interface:
+  display_name: "Delegate to Pi"
+  short_description: "Delegate coding work to Pi with V4 Flash"
+  default_prompt: "Use $delegate-to-pi to assign this coding task to a DeepSeek V4 Flash Pi worker, then review and verify its work."
+policy:
+  allow_implicit_invocation: true

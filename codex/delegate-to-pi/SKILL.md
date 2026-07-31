@@ -1,0 +1,66 @@
+---
+name: delegate-to-pi
+description: Delegate bounded software-engineering work to the local Pi coding agent using DeepSeek V4 Flash by default, then supervise, review, and verify its work. Use when the user invokes $delegate-to-pi or asks to delegate, hand off, or send implementation, debugging, refactoring, testing, or code review work to Pi, a Pi worker, a DeepSeek worker, or a DeepSeek subagent. Also use when the user asks Codex to have Pi perform part of a larger coding task. Pi worker mode may read, run commands, edit, and write files; reviewer mode is read-only. Both modes default to V4 Flash.
+---
+
+# Delegate to Pi
+
+Use Pi as bounded implementation worker. Keep Codex responsible for scope, safety, review, and final verification.
+
+## Preconditions
+
+1. Read applicable `AGENTS.md` files before delegation.
+2. Confirm current directory is task-authorized worktree. Never redirect Pi into a prohibited main worktree.
+3. Inspect `git status --short` when inside Git repository. Preserve unrelated user or agent changes.
+4. Give Pi explicit ownership: goal, permitted files/modules, constraints, acceptance criteria, and verification commands.
+5. Treat Pi as another worker sharing workspace. Warn it other work may exist and it must not revert unrelated edits.
+
+## Select mode and model
+
+- Default to `worker`: enable `read,bash,edit,write,grep,find,ls` so Pi can implement and test.
+- Use `reviewer` only for independent analysis without edits.
+- Default both `worker` and `reviewer` to `flash` with `high` thinking, including difficult work. Do not escalate to Pro automatically.
+- Use `pro` only when user explicitly requests V4 Pro. Use `max` thinking only when user explicitly requests maximum reasoning or measured task evidence supports it.
+- Split vague or oversized work into one bounded delegation at a time.
+
+## Run delegation
+
+Use bundled runner:
+
+```bash
+python3 <skill-dir>/scripts/run_pi_delegate.py \
+  --workdir <authorized-worktree> \
+  --mode worker \
+  --model flash \
+  --thinking high \
+  --task-file <delegation-brief.md>
+```
+
+Prefer `--task-file` for nontrivial briefs. Put temporary brief outside repository, do not include secrets, then unlink it after run. `--task` is acceptable for short safely quoted text. Use `--dry-run` to validate setup without calling DeepSeek.
+
+Runner deliberately:
+
+- defaults every mode to official `deepseek-v4-flash`; accepts `deepseek-v4-pro` only as explicit override;
+- grants full coding tools in worker mode;
+- preserves `AGENTS.md` context;
+- disables discovered Pi extensions, skills, and prompt templates for predictable execution;
+- ignores unapproved project-local Pi resources;
+- saves no Pi session;
+- never prints or passes an API key on command line.
+
+Do not delegate credentials, deployments, purchases, provider effects, external messages, commits, pushes, destructive Git operations, or production mutations. Those require direct user authorization and separate controlled handling by Codex.
+
+## Supervise result
+
+After Pi exits:
+
+1. Check exit status. Treat timeout or nonzero status as incomplete.
+2. Inspect `git status --short` and relevant diff. Reject out-of-scope changes.
+3. Read changed code; do not accept Pi summary as evidence.
+4. Run narrow relevant tests independently. Pi-run tests are useful but not final verification.
+5. Fix or revert only Pi-owned changes when needed; preserve pre-existing changes.
+6. Report delegated scope, changed files, verification result, and residual risks.
+
+## Forward progress
+
+If Pi fails, diagnose once. Retry only with materially improved scope or context. Do not repeatedly spend model tokens on identical prompt. If Pi is unavailable, model missing, or credentials unresolved, report exact blocker and continue locally when within user scope.

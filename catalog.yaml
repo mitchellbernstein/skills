@@ -1,0 +1,35 @@
+schema_version: 1
+repository: mitchellbernstein/skills
+
+# Compatibility is an installation filter, not a security boundary.
+harnesses:
+  codex:
+    path: codex
+    skill_directory: ~/.codex/skills
+  claude:
+    path: claude
+    skill_directory: ~/.claude/skills
+  grok:
+    path: grok
+    skill_directory: ~/.grok/skills
+  shared:
+    path: shared
+    description: Skills intended to work across harnesses; verify each SKILL.md.
+
+skills:
+  - id: delegate-to-pi
+    path: codex/delegate-to-pi
+    harnesses: [codex]
+    requires:
+      - pi-coding-agent
+      - DEEPSEEK_API_KEY or Pi DeepSeek auth entry
+    default_model: deepseek-v4-flash
+    mutates_workspace: true
+
+  - id: setup-xai-twilio-cloudflare-sip
+    path: shared/setup-xai-twilio-cloudflare-sip
+    harnesses: [codex, claude, grok]
+    requires:
+      - xAI account or API access
+      - Twilio Elastic SIP Trunking
+    mutates_workspace: false
