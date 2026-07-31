@@ -1,5 +1,6 @@
 # Codex skills
 
-Copy or sparse-checkout this directory into `~/.codex/skills` for Codex-only
-skills. For cross-harness skills such as `delegate-to-pi`, select `shared/` too.
-Codex-only skills may include UI metadata under `agents/`.
+Copy or sparse-checkout this directory into `~/.codex/skills`. Cross-harness
+skills such as `delegate-to-pi` have a ready-to-install copy here as well as a
+canonical source in `shared/`. Codex-only skills may include UI metadata under
+`agents/`.

@@ -9,9 +9,12 @@ harnesses:
   claude:
     path: claude
     skill_directory: ~/.claude/skills
-  grok:
-    path: grok
-    skill_directory: ~/.grok/skills
+  cursor:
+    path: cursor
+    skill_directory: ~/.cursor/skills
+  grok-build:
+    path: grok-build
+    skill_directory: platform-managed
   shared:
     path: shared
     description: Skills intended to work across harnesses; verify each SKILL.md.
@@ -19,7 +22,13 @@ harnesses:
 skills:
   - id: delegate-to-pi
     path: shared/delegate-to-pi
-    harnesses: [codex, claude]
+    canonical_path: shared/delegate-to-pi
+    copies:
+      codex: codex/delegate-to-pi
+      claude: claude/delegate-to-pi
+      cursor: cursor/delegate-to-pi
+      grok-build: grok-build/delegate-to-pi
+    harnesses: [codex, claude, cursor, grok-build]
     requires:
       - pi-coding-agent
       - Node.js/npm for automatic first-run install
@@ -31,7 +40,13 @@ skills:
 
   - id: setup-xai-twilio-cloudflare-sip
     path: shared/setup-xai-twilio-cloudflare-sip
-    harnesses: [codex, claude, grok]
+    canonical_path: shared/setup-xai-twilio-cloudflare-sip
+    copies:
+      codex: codex/setup-xai-twilio-cloudflare-sip
+      claude: claude/setup-xai-twilio-cloudflare-sip
+      cursor: cursor/setup-xai-twilio-cloudflare-sip
+      grok-build: grok-build/setup-xai-twilio-cloudflare-sip
+    harnesses: [codex, claude, cursor, grok-build]
     requires:
       - xAI account or API access
       - Twilio Elastic SIP Trunking
