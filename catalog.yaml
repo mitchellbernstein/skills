@@ -22,9 +22,12 @@ skills:
     harnesses: [codex, claude]
     requires:
       - pi-coding-agent
+      - Node.js/npm for automatic first-run install
       - DEEPSEEK_API_KEY or Pi DeepSeek auth entry
     default_model: deepseek-v4-flash
     mutates_workspace: true
+    bootstraps_local_pi: true
+    mutates_user_environment: true
 
   - id: setup-xai-twilio-cloudflare-sip
     path: shared/setup-xai-twilio-cloudflare-sip

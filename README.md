@@ -41,7 +41,7 @@ skill directory. Keep `shared/` available when selected skills reference it.
 
 ## Current skills
 
-- `shared/delegate-to-pi`: Delegate bounded implementation work to local Pi using DeepSeek V4 Flash by default; the host agent supervises and verifies. Works with Codex and Claude Code.
+- `shared/delegate-to-pi`: Delegate bounded implementation work to local Pi using DeepSeek V4 Flash by default; bootstraps Pi and refreshes its model catalog when needed, then the host agent supervises and verifies. Works with Codex and Claude Code.
 - `shared/setup-xai-twilio-cloudflare-sip`: Configure and debug xAI Voice Agent phone routing through Twilio and optional Cloudflare Workers.
 
 See [`catalog.yaml`](catalog.yaml) for machine-readable paths and compatibility.

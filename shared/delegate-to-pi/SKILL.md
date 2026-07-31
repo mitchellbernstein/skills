@@ -15,6 +15,19 @@ Use Pi as bounded implementation worker. Keep the host agent responsible for sco
 4. Give Pi explicit ownership: goal, permitted files/modules, constraints, acceptance criteria, and verification commands.
 5. Treat Pi as another worker sharing workspace. Warn it other work may exist and it must not revert unrelated edits.
 
+## Bootstrap Pi and DeepSeek
+
+The bundled runner bootstraps missing local plumbing during a real run:
+
+- If `pi` is absent, install the official `@earendil-works/pi-coding-agent` package with npm `--ignore-scripts` as the current user. Never use `sudo` or an install script.
+- If V4 Flash is absent from Pi's catalog, run `pi update --models` once and recheck.
+- Always pass `--provider deepseek --model deepseek-v4-flash`; a persisted `/model` choice is not required.
+- Check `DEEPSEEK_API_KEY` and Pi's `auth.json` without printing values.
+
+If authentication is missing, stop and ask the user to set `DEEPSEEK_API_KEY` in the parent shell or run `pi`, then `/login` and select DeepSeek. Never ask the user to paste a key into chat, pass it via `--api-key`, or write it to repository files. Retry after the user confirms setup.
+
+Use `--no-bootstrap` when the user explicitly wants a no-install/no-refresh preflight.
+
 ## Select mode and model
 
 - Default to `worker`: enable `read,bash,edit,write,grep,find,ls` so Pi can implement and test.
