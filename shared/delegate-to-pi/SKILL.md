@@ -1,11 +1,11 @@
 ---
 name: delegate-to-pi
-description: Delegate bounded software-engineering work to the local Pi coding agent using DeepSeek V4 Flash by default, then supervise, review, and verify its work. Use when the user invokes $delegate-to-pi or asks to delegate, hand off, or send implementation, debugging, refactoring, testing, or code review work to Pi, a Pi worker, a DeepSeek worker, or a DeepSeek subagent. Also use when the user asks Codex to have Pi perform part of a larger coding task. Pi worker mode may read, run commands, edit, and write files; reviewer mode is read-only. Both modes default to V4 Flash.
+description: Delegate bounded coding work to local Pi with DeepSeek V4 Flash. Use for Pi or DeepSeek implementation, debugging, testing, refactoring, or review; worker edits, reviewer stays read-only.
 ---
 
 # Delegate to Pi
 
-Use Pi as bounded implementation worker. Keep Codex responsible for scope, safety, review, and final verification.
+Use Pi as bounded implementation worker. Keep the host agent responsible for scope, safety, review, and final verification.
 
 ## Preconditions
 
@@ -25,7 +25,7 @@ Use Pi as bounded implementation worker. Keep Codex responsible for scope, safet
 
 ## Run delegation
 
-Use bundled runner:
+Use bundled runner. Resolve the script path from this skill directory. In Claude Code, use `${CLAUDE_SKILL_DIR}/scripts/run_pi_delegate.py`; in other harnesses, use the equivalent installed skill path:
 
 ```bash
 python3 <skill-dir>/scripts/run_pi_delegate.py \
@@ -48,7 +48,7 @@ Runner deliberately:
 - saves no Pi session;
 - never prints or passes an API key on command line.
 
-Do not delegate credentials, deployments, purchases, provider effects, external messages, commits, pushes, destructive Git operations, or production mutations. Those require direct user authorization and separate controlled handling by Codex.
+Do not delegate credentials, deployments, purchases, provider effects, external messages, commits, pushes, destructive Git operations, or production mutations. Those require direct user authorization and separate controlled handling by the host agent.
 
 ## Supervise result
 

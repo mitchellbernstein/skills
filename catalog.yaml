@@ -18,8 +18,8 @@ harnesses:
 
 skills:
   - id: delegate-to-pi
-    path: codex/delegate-to-pi
-    harnesses: [codex]
+    path: shared/delegate-to-pi
+    harnesses: [codex, claude]
     requires:
       - pi-coding-agent
       - DEEPSEEK_API_KEY or Pi DeepSeek auth entry
