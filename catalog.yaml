@@ -74,3 +74,20 @@ skills:
       - xAI account or API access
       - Twilio Elastic SIP Trunking
     mutates_workspace: false
+
+  - id: audit-email-deliverability
+    path: shared/audit-email-deliverability
+    canonical_path: shared/audit-email-deliverability
+    copies:
+      codex: codex/audit-email-deliverability
+      claude: claude/audit-email-deliverability
+      cursor: cursor/audit-email-deliverability
+      grok-build: grok-build/audit-email-deliverability
+    harnesses: [codex, claude, cursor, grok-build]
+    requires:
+      - dig or an equivalent DNS query tool
+      - DNS zone access (provider API token, MCP server, or dashboard login)
+      - a browser-automation MCP when driving a DNS dashboard by computer use
+    mutates_workspace: false
+    mutates_user_environment: false
+    mutates_external_state: true
