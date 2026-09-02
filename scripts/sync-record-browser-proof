@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+set -eu
+
+root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+canonical="$root/shared/record-browser-proof"
+
+for harness in codex claude cursor grok-build; do
+  install -m 644 "$canonical/SKILL.md" "$root/$harness/record-browser-proof/SKILL.md"
+  install -m 755 "$canonical/scripts/browser-proof" "$root/$harness/record-browser-proof/scripts/browser-proof"
+done

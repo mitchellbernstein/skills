@@ -4,6 +4,8 @@ set -euo pipefail
 usage() {
   cat >&2 <<'USAGE'
 usage:
+  browser-proof prepare <video.webm> <url> [width] [height]
+  browser-proof finalize <video.webm> [minimum-seconds]
   browser-proof start <session> <video.webm> <url> [width] [height]
   browser-proof stop <video.webm> [minimum-seconds]
   browser-proof verify <video.webm> [minimum-seconds]
@@ -42,8 +44,29 @@ sha256_file() {
 }
 
 require_record_tools() {
+  require_agent_browser
   local tool
-  for tool in agent-browser ffprobe python3 git; do
+  for tool in ffprobe python3 git; do
+    command -v "$tool" >/dev/null 2>&1 || {
+      echo "Missing required command: $tool" >&2
+      exit 1
+    }
+  done
+}
+
+require_agent_browser() {
+  command -v agent-browser >/dev/null 2>&1 && return
+  cat >&2 <<'ERROR'
+No compatible browser recording driver found. No install was attempted.
+Use `prepare` and `finalize` with host browser automation that can save an isolated WebM, or ask the user to authorize:
+  npm install -g agent-browser && agent-browser install
+ERROR
+  exit 1
+}
+
+require_prepare_tools() {
+  local tool
+  for tool in python3 git; do
     command -v "$tool" >/dev/null 2>&1 || {
       echo "Missing required command: $tool" >&2
       exit 1
@@ -54,16 +77,6 @@ require_record_tools() {
 require_verify_tools() {
   local tool
   for tool in ffprobe python3; do
-    command -v "$tool" >/dev/null 2>&1 || {
-      echo "Missing required command: $tool" >&2
-      exit 1
-    }
-  done
-}
-
-require_abort_tools() {
-  local tool
-  for tool in agent-browser python3; do
     command -v "$tool" >/dev/null 2>&1 || {
       echo "Missing required command: $tool" >&2
       exit 1
@@ -104,7 +117,74 @@ manifest_path() {
 }
 
 probe_video() {
-  ffprobe -v error -show_entries format=duration:stream=width,height -of json "$1"
+  ffprobe -v error -show_entries format=format_name,duration:stream=width,height -of json "$1"
+}
+
+write_recording_state() {
+  local state="$1"
+  local driver="$2"
+  local session="$3"
+  local video="$4"
+  local url="$5"
+  local width="$6"
+  local height="$7"
+  local revision="${BROWSER_PROOF_REVISION:-unversioned}"
+  local dirty="${BROWSER_PROOF_DIRTY:-true}"
+
+  if [[ -z "${BROWSER_PROOF_REVISION:-}" ]] && git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    revision="$(git rev-parse HEAD)"
+    [[ -z "$(git status --porcelain)" ]] && dirty="false"
+  fi
+  [[ "$dirty" == "true" || "$dirty" == "false" ]] || {
+    echo "BROWSER_PROOF_DIRTY must be true or false" >&2
+    exit 2
+  }
+
+  python3 - "$state" "$driver" "$session" "$video" "$url" "$width" "$height" "$revision" "$dirty" <<'PY'
+import json
+import sys
+
+path, driver, session, video, url, width, height, revision, dirty = sys.argv[1:]
+plan = {
+    "schema_version": 1,
+    "driver": driver,
+    "video": video,
+    "url": url,
+    "width": int(width),
+    "height": int(height),
+    "revision": revision,
+    "dirty": dirty == "true",
+}
+if session:
+    plan["session"] = session
+with open(path, "x", encoding="utf-8") as handle:
+    json.dump(plan, handle, indent=2)
+    handle.write("\n")
+json.dump(plan, sys.stdout, separators=(",", ":"))
+print()
+PY
+}
+
+prepare_recording() {
+  [[ $# -ge 2 && $# -le 4 ]] || usage
+  require_prepare_tools
+  require_verify_tools
+
+  local video
+  video="$(absolute_path "$1")"
+  local url="$2"
+  local width="${3:-1440}"
+  local height="${4:-900}"
+  local state
+  state="$(state_path "$video")"
+
+  [[ "$video" == *.webm ]] || { echo "Video path must end in .webm" >&2; exit 2; }
+  [[ "$width" =~ ^[0-9]+$ && "$height" =~ ^[0-9]+$ ]] || { echo "Viewport must be numeric" >&2; exit 2; }
+  validate_safe_url "$url"
+  [[ ! -e "$state" ]] || { echo "Recording state already exists: $state" >&2; exit 1; }
+  [[ ! -e "$video" ]] || { echo "Refusing to overwrite video: $video" >&2; exit 1; }
+
+  write_recording_state "$state" host "" "$video" "$url" "$width" "$height"
 }
 
 start_recording() {
@@ -126,16 +206,7 @@ start_recording() {
   [[ ! -e "$state" ]] || { echo "Recording state already exists: $state" >&2; exit 1; }
   [[ ! -e "$video" ]] || { echo "Refusing to overwrite video: $video" >&2; exit 1; }
 
-  local revision="${BROWSER_PROOF_REVISION:-unversioned}"
-  local dirty="${BROWSER_PROOF_DIRTY:-true}"
-  if [[ -z "${BROWSER_PROOF_REVISION:-}" ]] && git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-    revision="$(git rev-parse HEAD)"
-    [[ -z "$(git status --porcelain)" ]] && dirty="false"
-  fi
-  [[ "$dirty" == "true" || "$dirty" == "false" ]] || {
-    echo "BROWSER_PROOF_DIRTY must be true or false" >&2
-    exit 2
-  }
+  write_recording_state "$state" agent-browser "$session" "$video" "$url" "$width" "$height" >/dev/null
 
   agent-browser --session "$session" open "$url" >/dev/null
   agent-browser --session "$session" wait --load domcontentloaded >/dev/null
@@ -145,42 +216,21 @@ start_recording() {
   agent-browser --session "$session" wait --load domcontentloaded >/dev/null
   agent-browser --session "$session" wait 2600 >/dev/null
 
-  python3 - "$state" "$session" "$video" "$url" "$width" "$height" "$revision" "$dirty" <<'PY'
-import json
-import sys
-
-path, session, video, url, width, height, revision, dirty = sys.argv[1:]
-with open(path, "w", encoding="utf-8") as handle:
-    json.dump({
-        "session": session,
-        "video": video,
-        "url": url,
-        "width": int(width),
-        "height": int(height),
-        "revision": revision,
-        "dirty": dirty == "true",
-    }, handle, indent=2)
-    handle.write("\n")
-PY
   echo "Recording: $video"
 }
 
-stop_recording() {
+finalize_recording() {
   [[ $# -ge 1 && $# -le 2 ]] || usage
-  require_record_tools
+  require_verify_tools
 
   local video
   video="$(absolute_path "$1")"
   local minimum="${2:-5}"
-  local state manifest session
+  local state manifest
   state="$(state_path "$video")"
   manifest="$(manifest_path "$video")"
   [[ -f "$state" ]] || { echo "Recording state missing: $state" >&2; exit 1; }
   [[ "$minimum" =~ ^[0-9]+([.][0-9]+)?$ ]] || { echo "Minimum duration must be numeric" >&2; exit 2; }
-
-  session="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["session"])' "$state")"
-  agent-browser --session "$session" wait 2600 >/dev/null
-  agent-browser --session "$session" record stop >/dev/null
   [[ -s "$video" ]] || { echo "Video missing or empty: $video" >&2; exit 1; }
 
   local probe sha bytes
@@ -200,15 +250,19 @@ probe = json.loads(probe_raw)
 streams = probe.get("streams") or []
 stream = next((item for item in streams if item.get("width") and item.get("height")), {})
 duration = float((probe.get("format") or {}).get("duration") or 0)
+format_name = str((probe.get("format") or {}).get("format_name") or "")
 width = int(stream.get("width") or 0)
 height = int(stream.get("height") or 0)
 errors = []
+if "webm" not in format_name.split(","):
+    errors.append(f"container is {format_name or 'unknown'}, expected WebM")
 if duration < float(minimum):
     errors.append(f"duration {duration:.3f}s is below {minimum}s")
 if width != state["width"] or height != state["height"]:
     errors.append(f"video is {width}x{height}, expected {state['width']}x{state['height']}")
 manifest = {
     **state,
+    "format_name": format_name,
     "duration_seconds": duration,
     "sha256": sha,
     "bytes": int(size),
@@ -226,6 +280,27 @@ PY
   rm "$state"
   echo "Proof: $video"
   echo "Manifest: $manifest"
+}
+
+stop_recording() {
+  [[ $# -ge 1 && $# -le 2 ]] || usage
+  require_record_tools
+
+  local video
+  video="$(absolute_path "$1")"
+  local minimum="${2:-5}"
+  local state driver session
+  state="$(state_path "$video")"
+  [[ -f "$state" ]] || { echo "Recording state missing: $state" >&2; exit 1; }
+  driver="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1])).get("driver", "agent-browser"))' "$state")"
+  [[ "$driver" == "agent-browser" ]] || {
+    echo 'Host recording state must be stopped by its host, then finalized with `finalize`' >&2
+    exit 1
+  }
+  session="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["session"])' "$state")"
+  agent-browser --session "$session" wait 2600 >/dev/null
+  agent-browser --session "$session" record stop >/dev/null
+  finalize_recording "$video" "$minimum"
 }
 
 verify_recording() {
@@ -255,6 +330,7 @@ probe = json.loads(probe_raw)
 streams = probe.get("streams") or []
 stream = next((item for item in streams if item.get("width") and item.get("height")), {})
 actual = {
+    "format_name": str((probe.get("format") or {}).get("format_name") or ""),
     "duration_seconds": float((probe.get("format") or {}).get("duration") or 0),
     "width": int(stream.get("width") or 0),
     "height": int(stream.get("height") or 0),
@@ -264,9 +340,11 @@ actual = {
 errors = []
 if manifest.get("passed_media_checks") is not True:
     errors.append("manifest does not record passing media checks")
+if "webm" not in actual["format_name"].split(","):
+    errors.append(f"container is {actual['format_name'] or 'unknown'}, expected WebM")
 if actual["duration_seconds"] < float(minimum):
     errors.append(f"duration {actual['duration_seconds']:.3f}s is below {minimum}s")
-for key in ("width", "height", "sha256", "bytes"):
+for key in ("format_name", "width", "height", "sha256", "bytes"):
     if actual[key] != manifest.get(key):
         errors.append(f"{key} does not match manifest")
 if abs(actual["duration_seconds"] - float(manifest.get("duration_seconds") or 0)) > 0.01:
@@ -280,13 +358,23 @@ PY
 
 abort_recording() {
   [[ $# -eq 1 ]] || usage
-  require_abort_tools
-  local video state session
+  require_prepare_tools
+  local video state driver session
   video="$(absolute_path "$1")"
   state="$(state_path "$video")"
   [[ -f "$state" ]] || { echo "Recording state missing: $state" >&2; exit 1; }
-  session="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["session"])' "$state")"
-  agent-browser --session "$session" record stop >/dev/null 2>&1 || true
+  driver="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1])).get("driver", "agent-browser"))' "$state")"
+  if [[ "$driver" == "agent-browser" ]]; then
+    require_agent_browser
+    session="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["session"])' "$state")"
+    if ! agent-browser --session "$session" record stop >/dev/null; then
+      echo "No active recording stopped for agent-browser session: $session" >&2
+    fi
+    if ! agent-browser --session "$session" close >/dev/null; then
+      echo "Could not close agent-browser session; recording state retained: $state" >&2
+      exit 1
+    fi
+  fi
   rm "$state"
   echo "Recording aborted; artifact is not verified: $video"
 }
@@ -294,6 +382,8 @@ abort_recording() {
 command="${1:-}"
 shift || true
 case "$command" in
+  prepare) prepare_recording "$@" ;;
+  finalize) finalize_recording "$@" ;;
   start) start_recording "$@" ;;
   stop) stop_recording "$@" ;;
   verify) verify_recording "$@" ;;
