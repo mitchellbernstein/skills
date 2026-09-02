@@ -1,0 +1,4 @@
+interface:
+  display_name: "Record Browser Proof"
+  short_description: "Record assertion-backed browser verification videos"
+  default_prompt: "Record a privacy-safe browser verification video tied to the current revision."
