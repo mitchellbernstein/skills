@@ -1,0 +1,302 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  cat >&2 <<'USAGE'
+usage:
+  browser-proof start <session> <video.webm> <url> [width] [height]
+  browser-proof stop <video.webm> [minimum-seconds]
+  browser-proof verify <video.webm> [minimum-seconds]
+  browser-proof abort <video.webm>
+USAGE
+  exit 2
+}
+
+absolute_path() {
+  local input="$1"
+  local directory filename
+  directory="$(dirname "$input")"
+  filename="$(basename "$input")"
+  mkdir -p "$directory"
+  directory="$(cd "$directory" && pwd)"
+  printf '%s/%s\n' "$directory" "$filename"
+}
+
+file_bytes() {
+  if stat -f %z "$1" >/dev/null 2>&1; then
+    stat -f %z "$1"
+  else
+    stat -c %s "$1"
+  fi
+}
+
+sha256_file() {
+  if command -v shasum >/dev/null 2>&1; then
+    shasum -a 256 "$1" | awk '{print $1}'
+  elif command -v sha256sum >/dev/null 2>&1; then
+    sha256sum "$1" | awk '{print $1}'
+  else
+    echo "Missing required command: shasum or sha256sum" >&2
+    exit 1
+  fi
+}
+
+require_record_tools() {
+  local tool
+  for tool in agent-browser ffprobe python3 git; do
+    command -v "$tool" >/dev/null 2>&1 || {
+      echo "Missing required command: $tool" >&2
+      exit 1
+    }
+  done
+}
+
+require_verify_tools() {
+  local tool
+  for tool in ffprobe python3; do
+    command -v "$tool" >/dev/null 2>&1 || {
+      echo "Missing required command: $tool" >&2
+      exit 1
+    }
+  done
+}
+
+require_abort_tools() {
+  local tool
+  for tool in agent-browser python3; do
+    command -v "$tool" >/dev/null 2>&1 || {
+      echo "Missing required command: $tool" >&2
+      exit 1
+    }
+  done
+}
+
+validate_safe_url() {
+  python3 - "$1" <<'PY'
+import sys
+from urllib.parse import urlsplit
+
+url = sys.argv[1]
+parsed = urlsplit(url)
+errors = []
+if parsed.scheme not in {"http", "https"}:
+    errors.append("scheme must be http or https")
+if not parsed.hostname:
+    errors.append("hostname is required")
+if parsed.username or parsed.password:
+    errors.append("credentials are forbidden")
+if parsed.query:
+    errors.append("query parameters are forbidden")
+if parsed.fragment:
+    errors.append("fragments are forbidden")
+if errors:
+    print("Unsafe recording URL: " + "; ".join(errors), file=sys.stderr)
+    raise SystemExit(2)
+PY
+}
+
+state_path() {
+  printf '%s.recording.json\n' "${1%.webm}"
+}
+
+manifest_path() {
+  printf '%s.proof.json\n' "${1%.webm}"
+}
+
+probe_video() {
+  ffprobe -v error -show_entries format=duration:stream=width,height -of json "$1"
+}
+
+start_recording() {
+  [[ $# -ge 3 && $# -le 5 ]] || usage
+  require_record_tools
+
+  local session="$1"
+  local video
+  video="$(absolute_path "$2")"
+  local url="$3"
+  local width="${4:-1440}"
+  local height="${5:-900}"
+  local state
+  state="$(state_path "$video")"
+
+  [[ "$video" == *.webm ]] || { echo "Video path must end in .webm" >&2; exit 2; }
+  [[ "$width" =~ ^[0-9]+$ && "$height" =~ ^[0-9]+$ ]] || { echo "Viewport must be numeric" >&2; exit 2; }
+  validate_safe_url "$url"
+  [[ ! -e "$state" ]] || { echo "Recording state already exists: $state" >&2; exit 1; }
+  [[ ! -e "$video" ]] || { echo "Refusing to overwrite video: $video" >&2; exit 1; }
+
+  local revision="${BROWSER_PROOF_REVISION:-unversioned}"
+  local dirty="${BROWSER_PROOF_DIRTY:-true}"
+  if [[ -z "${BROWSER_PROOF_REVISION:-}" ]] && git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    revision="$(git rev-parse HEAD)"
+    [[ -z "$(git status --porcelain)" ]] && dirty="false"
+  fi
+  [[ "$dirty" == "true" || "$dirty" == "false" ]] || {
+    echo "BROWSER_PROOF_DIRTY must be true or false" >&2
+    exit 2
+  }
+
+  agent-browser --session "$session" open "$url" >/dev/null
+  agent-browser --session "$session" wait --load domcontentloaded >/dev/null
+  agent-browser --session "$session" set viewport "$width" "$height" >/dev/null
+  agent-browser --session "$session" record start "$video" "$url" >/dev/null
+  agent-browser --session "$session" set viewport "$width" "$height" >/dev/null
+  agent-browser --session "$session" wait --load domcontentloaded >/dev/null
+  agent-browser --session "$session" wait 2600 >/dev/null
+
+  python3 - "$state" "$session" "$video" "$url" "$width" "$height" "$revision" "$dirty" <<'PY'
+import json
+import sys
+
+path, session, video, url, width, height, revision, dirty = sys.argv[1:]
+with open(path, "w", encoding="utf-8") as handle:
+    json.dump({
+        "session": session,
+        "video": video,
+        "url": url,
+        "width": int(width),
+        "height": int(height),
+        "revision": revision,
+        "dirty": dirty == "true",
+    }, handle, indent=2)
+    handle.write("\n")
+PY
+  echo "Recording: $video"
+}
+
+stop_recording() {
+  [[ $# -ge 1 && $# -le 2 ]] || usage
+  require_record_tools
+
+  local video
+  video="$(absolute_path "$1")"
+  local minimum="${2:-5}"
+  local state manifest session
+  state="$(state_path "$video")"
+  manifest="$(manifest_path "$video")"
+  [[ -f "$state" ]] || { echo "Recording state missing: $state" >&2; exit 1; }
+  [[ "$minimum" =~ ^[0-9]+([.][0-9]+)?$ ]] || { echo "Minimum duration must be numeric" >&2; exit 2; }
+
+  session="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["session"])' "$state")"
+  agent-browser --session "$session" wait 2600 >/dev/null
+  agent-browser --session "$session" record stop >/dev/null
+  [[ -s "$video" ]] || { echo "Video missing or empty: $video" >&2; exit 1; }
+
+  local probe sha bytes
+  probe="$(probe_video "$video")"
+  sha="$(sha256_file "$video")"
+  bytes="$(file_bytes "$video")"
+
+  python3 - "$state" "$manifest" "$probe" "$sha" "$bytes" "$minimum" <<'PY'
+import datetime
+import json
+import sys
+
+state_path, manifest_path, probe_raw, sha, size, minimum = sys.argv[1:]
+with open(state_path, encoding="utf-8") as handle:
+    state = json.load(handle)
+probe = json.loads(probe_raw)
+streams = probe.get("streams") or []
+stream = next((item for item in streams if item.get("width") and item.get("height")), {})
+duration = float((probe.get("format") or {}).get("duration") or 0)
+width = int(stream.get("width") or 0)
+height = int(stream.get("height") or 0)
+errors = []
+if duration < float(minimum):
+    errors.append(f"duration {duration:.3f}s is below {minimum}s")
+if width != state["width"] or height != state["height"]:
+    errors.append(f"video is {width}x{height}, expected {state['width']}x{state['height']}")
+manifest = {
+    **state,
+    "duration_seconds": duration,
+    "sha256": sha,
+    "bytes": int(size),
+    "recorded_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+    "passed_media_checks": not errors,
+    "errors": errors,
+}
+with open(manifest_path, "w", encoding="utf-8") as handle:
+    json.dump(manifest, handle, indent=2)
+    handle.write("\n")
+if errors:
+    print("; ".join(errors), file=sys.stderr)
+    raise SystemExit(1)
+PY
+  rm "$state"
+  echo "Proof: $video"
+  echo "Manifest: $manifest"
+}
+
+verify_recording() {
+  [[ $# -ge 1 && $# -le 2 ]] || usage
+  require_verify_tools
+
+  local video
+  video="$(absolute_path "$1")"
+  local minimum="${2:-5}"
+  local manifest probe sha bytes
+  manifest="$(manifest_path "$video")"
+  [[ -s "$video" ]] || { echo "Video missing or empty: $video" >&2; exit 1; }
+  [[ -f "$manifest" ]] || { echo "Proof manifest missing: $manifest" >&2; exit 1; }
+  [[ "$minimum" =~ ^[0-9]+([.][0-9]+)?$ ]] || { echo "Minimum duration must be numeric" >&2; exit 2; }
+  probe="$(probe_video "$video")"
+  sha="$(sha256_file "$video")"
+  bytes="$(file_bytes "$video")"
+
+  python3 - "$manifest" "$probe" "$sha" "$bytes" "$minimum" <<'PY'
+import json
+import sys
+
+manifest_path, probe_raw, sha, size, minimum = sys.argv[1:]
+with open(manifest_path, encoding="utf-8") as handle:
+    manifest = json.load(handle)
+probe = json.loads(probe_raw)
+streams = probe.get("streams") or []
+stream = next((item for item in streams if item.get("width") and item.get("height")), {})
+actual = {
+    "duration_seconds": float((probe.get("format") or {}).get("duration") or 0),
+    "width": int(stream.get("width") or 0),
+    "height": int(stream.get("height") or 0),
+    "sha256": sha,
+    "bytes": int(size),
+}
+errors = []
+if manifest.get("passed_media_checks") is not True:
+    errors.append("manifest does not record passing media checks")
+if actual["duration_seconds"] < float(minimum):
+    errors.append(f"duration {actual['duration_seconds']:.3f}s is below {minimum}s")
+for key in ("width", "height", "sha256", "bytes"):
+    if actual[key] != manifest.get(key):
+        errors.append(f"{key} does not match manifest")
+if abs(actual["duration_seconds"] - float(manifest.get("duration_seconds") or 0)) > 0.01:
+    errors.append("duration does not match manifest")
+if errors:
+    print("; ".join(errors), file=sys.stderr)
+    raise SystemExit(1)
+print(f"Verified: {manifest_path}")
+PY
+}
+
+abort_recording() {
+  [[ $# -eq 1 ]] || usage
+  require_abort_tools
+  local video state session
+  video="$(absolute_path "$1")"
+  state="$(state_path "$video")"
+  [[ -f "$state" ]] || { echo "Recording state missing: $state" >&2; exit 1; }
+  session="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["session"])' "$state")"
+  agent-browser --session "$session" record stop >/dev/null 2>&1 || true
+  rm "$state"
+  echo "Recording aborted; artifact is not verified: $video"
+}
+
+command="${1:-}"
+shift || true
+case "$command" in
+  start) start_recording "$@" ;;
+  stop) stop_recording "$@" ;;
+  verify) verify_recording "$@" ;;
+  abort) abort_recording "$@" ;;
+  *) usage ;;
+esac

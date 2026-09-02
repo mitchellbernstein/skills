@@ -91,3 +91,22 @@ skills:
     mutates_workspace: false
     mutates_user_environment: false
     mutates_external_state: true
+
+  - id: record-browser-proof
+    path: shared/record-browser-proof
+    canonical_path: shared/record-browser-proof
+    copies:
+      codex: codex/record-browser-proof
+      claude: claude/record-browser-proof
+      cursor: cursor/record-browser-proof
+      grok-build: grok-build/record-browser-proof
+    harnesses: [codex, claude, cursor, grok-build]
+    requires:
+      - agent-browser
+      - ffprobe
+      - python3
+      - Git
+      - shasum or sha256sum
+    mutates_workspace: true
+    records_browser_video: true
+    requires_non_video_assertions: true
