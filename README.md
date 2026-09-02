@@ -50,7 +50,7 @@ metadata.
 - `*/delegate-to-agent`: Choose an explicit local worker CLI—Pi/DeepSeek, OpenAI Codex, Claude Code, or Grok Build—and delegate bounded coding work with target-specific model and permission handling.
 - `*/delegate-to-pi`: Delegate bounded implementation work to local Pi using DeepSeek V4 Flash by default; bootstraps Pi and refreshes its model catalog when needed, then the host agent supervises and verifies. Copies are available for Codex, Claude Code, Cursor, and Grok Build.
 - `*/audit-email-deliverability`: Audit and fix SPF, DKIM, and DMARC for a sending domain; enumerate the real zone before diagnosing, find dead DMARC report addresses, sequence report collection before policy enforcement, and drive a DNS dashboard by computer use when no API token is available. Copies are available for all four harness sections.
-- `*/record-browser-proof`: Record privacy-safe, revision-bound browser verification videos with duration, viewport, checksum, and integrity checks. Copies are available for all four harness sections.
+- `*/record-browser-proof`: Record privacy-safe, revision-bound browser verification videos with a capable host recorder or an optional `agent-browser` fallback. Duration, viewport, checksum, and integrity checks remain driver-independent. Copies are available for all four harness sections.
 - `*/setup-xai-twilio-cloudflare-sip`: Configure and debug xAI Voice Agent phone routing through Twilio and optional Cloudflare Workers. Copies are available for all four harness sections.
 
 `delegate-to-pi` remains for backwards compatibility. Use `delegate-to-agent`

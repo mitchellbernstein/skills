@@ -1,0 +1,92 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+helper="$root/shared/record-browser-proof/scripts/browser-proof"
+ffmpeg_bin=$(command -v ffmpeg)
+task_temp=$(mktemp -d /tmp/record-browser-proof-test.XXXXXX)
+trap 'rm -rf -- "$task_temp"' EXIT
+
+mkdir -p "$task_temp/bin"
+ln -s "$(command -v ffprobe)" "$task_temp/bin/ffprobe"
+restricted_path="$task_temp/bin:/usr/bin:/bin"
+proof="$task_temp/native.webm"
+
+plan=$(PATH="$restricted_path" BROWSER_PROOF_REVISION=test-revision BROWSER_PROOF_DIRTY=false \
+  "$helper" prepare "$proof" http://127.0.0.1:4173/test 320 200)
+python3 - "$plan" "$proof" <<'PY'
+import json
+import sys
+
+plan = json.loads(sys.argv[1])
+assert plan["schema_version"] == 1
+assert plan["driver"] == "host"
+assert plan["video"] == sys.argv[2]
+assert plan["width"] == 320
+assert plan["height"] == 200
+assert plan["revision"] == "test-revision"
+assert plan["dirty"] is False
+PY
+
+if PATH="$restricted_path" BROWSER_PROOF_REVISION=test-revision BROWSER_PROOF_DIRTY=false \
+  "$helper" prepare "$proof" http://127.0.0.1:4173/test 320 200 >/dev/null 2>&1; then
+  echo "Existing recording state was overwritten" >&2
+  exit 1
+fi
+
+"$ffmpeg_bin" -loglevel error -f lavfi -i color=c=blue:s=320x200:d=1.2 \
+  -c:v libvpx-vp9 -pix_fmt yuv420p "$proof"
+PATH="$restricted_path" "$helper" finalize "$proof" 1 >/dev/null
+PATH="$restricted_path" "$helper" verify "$proof" 1 >/dev/null
+
+printf x >>"$proof"
+if PATH="$restricted_path" "$helper" verify "$proof" 1 >/dev/null 2>&1; then
+  echo "Tampered proof passed verification" >&2
+  exit 1
+fi
+
+abort_proof="$task_temp/abort.webm"
+PATH="$restricted_path" BROWSER_PROOF_REVISION=test-revision BROWSER_PROOF_DIRTY=false \
+  "$helper" prepare "$abort_proof" http://127.0.0.1:4173/abort 320 200 >/dev/null
+PATH="$restricted_path" "$helper" abort "$abort_proof" >/dev/null
+[[ ! -e "${abort_proof%.webm}.recording.json" ]]
+
+wrong_container="$task_temp/wrong-container.webm"
+PATH="$restricted_path" BROWSER_PROOF_REVISION=test-revision BROWSER_PROOF_DIRTY=false \
+  "$helper" prepare "$wrong_container" http://127.0.0.1:4173/wrong-container 320 200 >/dev/null
+"$ffmpeg_bin" -loglevel error -f lavfi -i color=c=red:s=320x200:d=1.2 \
+  -c:v mpeg4 -f mp4 "$wrong_container"
+if PATH="$restricted_path" "$helper" finalize "$wrong_container" 1 >/dev/null 2>&1; then
+  echo "Non-WebM container passed finalization" >&2
+  exit 1
+fi
+
+missing_proof="$task_temp/missing.webm"
+if PATH="$restricted_path" "$helper" start missing "$missing_proof" http://127.0.0.1:4173/test 320 200 \
+  >"$task_temp/missing.out" 2>"$task_temp/missing.err"; then
+  echo "Recording started without a driver" >&2
+  exit 1
+fi
+grep -F "No compatible browser recording driver found. No install was attempted." "$task_temp/missing.err" >/dev/null
+grep -F "npm install -g agent-browser && agent-browser install" "$task_temp/missing.err" >/dev/null
+[[ ! -e "${missing_proof%.webm}.recording.json" ]]
+
+if PATH="$restricted_path" "$helper" prepare "$task_temp/unsafe.webm" 'http://127.0.0.1:4173/test?token=secret' 320 200 \
+  >/dev/null 2>&1; then
+  echo "Unsafe URL passed preparation" >&2
+  exit 1
+fi
+
+for harness in codex claude cursor grok-build; do
+  cmp "$root/shared/record-browser-proof/SKILL.md" "$root/$harness/record-browser-proof/SKILL.md"
+  cmp "$root/shared/record-browser-proof/scripts/browser-proof" "$root/$harness/record-browser-proof/scripts/browser-proof"
+done
+
+if sed -n '/id: record-browser-proof/,/requires_non_video_assertions/p' "$root/catalog.yaml" | grep -Fx '      - agent-browser' >/dev/null; then
+  echo "agent-browser remains an installation requirement" >&2
+  exit 1
+fi
+grep -F 'recorder_setup_requires_user_authorization: true' "$root/catalog.yaml" >/dev/null
+grep -F 'Video without' "$root/shared/record-browser-proof/SKILL.md" >/dev/null
+
+echo "record-browser-proof tests passed"

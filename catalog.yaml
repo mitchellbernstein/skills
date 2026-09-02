@@ -102,11 +102,14 @@ skills:
       grok-build: grok-build/record-browser-proof
     harnesses: [codex, claude, cursor, grok-build]
     requires:
-      - agent-browser
       - ffprobe
       - python3
       - Git
       - shasum or sha256sum
+    runtime_recorders:
+      - host browser automation with local WebM recording
+      - agent-browser, installed only with user authorization
+    recorder_setup_requires_user_authorization: true
     mutates_workspace: true
     records_browser_video: true
     requires_non_video_assertions: true
