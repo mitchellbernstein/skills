@@ -20,6 +20,32 @@ harnesses:
     description: Skills intended to work across harnesses; verify each SKILL.md.
 
 skills:
+  - id: astra-autonomy
+    path: codex/astra-autonomy
+    canonical_path: codex/astra-autonomy
+    harnesses: [codex]
+    requires:
+      - astra-instruction-audit
+      - astra-delegation
+    mutates_workspace: true
+
+  - id: astra-instruction-audit
+    path: codex/astra-instruction-audit
+    canonical_path: codex/astra-instruction-audit
+    harnesses: [codex]
+    requires: []
+    mutates_workspace: true
+    mutates_user_environment: true
+
+  - id: astra-delegation
+    path: codex/astra-delegation
+    canonical_path: codex/astra-delegation
+    harnesses: [codex]
+    requires: []
+    optional_capabilities:
+      - collaboration tools permitted by the current session
+    mutates_workspace: true
+
   - id: delegate-to-agent
     path: shared/delegate-to-agent
     canonical_path: shared/delegate-to-agent
