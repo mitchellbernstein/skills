@@ -1,0 +1,3 @@
+interface:
+  display_name: "Astra Instruction Audit"
+  short_description: "Find instructions causing stalls and task drift"

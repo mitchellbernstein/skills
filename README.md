@@ -47,13 +47,48 @@ metadata.
 
 ## Current skills
 
-- `*/delegate-to-agent`: Choose an explicit local worker CLI—Pi/DeepSeek, OpenAI Codex, Claude Code, or Grok Build—and delegate bounded coding work with target-specific model and permission handling.
-- `*/delegate-to-pi`: Delegate bounded implementation work to local Pi using DeepSeek V4 Flash by default; bootstraps Pi and refreshes its model catalog when needed, then the host agent supervises and verifies. Copies are available for Codex, Claude Code, Cursor, and Grok Build.
-- `*/audit-email-deliverability`: Audit and fix SPF, DKIM, and DMARC for a sending domain; enumerate the real zone before diagnosing, find dead DMARC report addresses, sequence report collection before policy enforcement, and drive a DNS dashboard by computer use when no API token is available. Copies are available for all four harness sections.
-- `*/record-browser-proof`: Record privacy-safe, revision-bound browser verification videos with a capable host recorder or an optional `agent-browser` fallback. Duration, viewport, checksum, and integrity checks remain driver-independent. Copies are available for all four harness sections.
-- `*/setup-xai-twilio-cloudflare-sip`: Configure and debug xAI Voice Agent phone routing through Twilio and optional Cloudflare Workers. Copies are available for all four harness sections.
+| Skill | Use it for | Available in |
+| --- | --- | --- |
+| [astra-autonomy](codex/astra-autonomy/SKILL.md) | Finish authorized work with fewer checkpoints. Install with the other two Astra skills. | Codex |
+| [astra-instruction-audit](codex/astra-instruction-audit/SKILL.md) | Find instructions causing unnecessary pauses or task drift. | Codex |
+| [astra-delegation](codex/astra-delegation/SKILL.md) | Delegate independent work with clear ownership and verification. | Codex |
+| [delegate-to-agent](shared/delegate-to-agent/SKILL.md) | Choose a Pi, Codex, Claude Code, or Grok Build worker. | All four |
+| [delegate-to-pi](shared/delegate-to-pi/SKILL.md) | Delegate to Pi with DeepSeek V4 Flash; includes first-run setup. | All four |
+| [audit-email-deliverability](shared/audit-email-deliverability/SKILL.md) | Diagnose and fix SPF, DKIM, DMARC, and report delivery. | All four |
+| [record-browser-proof](shared/record-browser-proof/SKILL.md) | Record browser verification tied to the tested revision. | All four |
+| [setup-xai-twilio-cloudflare-sip](shared/setup-xai-twilio-cloudflare-sip/SKILL.md) | Set up or debug xAI phone routing through Twilio and optional Cloudflare Workers. | All four |
+
+"All four" means Codex, Claude Code, Cursor, and Grok Build.
 
 `delegate-to-pi` remains for backwards compatibility. Use `delegate-to-agent`
 when the task should explicitly select Codex, Claude, Grok Build, or Pi.
 
 See [`catalog.yaml`](catalog.yaml) for machine-readable paths and compatibility.
+
+For the Astra skills, see [installation and activation](codex/README.md#astra-skills).
+
+## Copy an install prompt
+
+Paste a prompt into your coding agent. Edit the skill names to pick only what you
+need. Installation includes bundled files and required skill dependencies; it
+does not run the installed workflows.
+
+### Astra skills for Codex
+
+```text
+Install astra-autonomy, astra-instruction-audit, and astra-delegation from https://github.com/mitchellbernstein/skills into my Codex skills directory. Use the codex/ copies, include their bundled files, and preserve unrelated installed skills. Add the optional Astra activation rule from codex/README.md to my user AGENTS.md without duplicating an existing rule.
+```
+
+### Pick individual skills
+
+Replace the two example names with your choices from the table:
+
+```text
+Install only record-browser-proof and audit-email-deliverability from https://github.com/mitchellbernstein/skills for my current coding agent. Check catalog.yaml for compatibility, use the matching harness directory, and include bundled files and required skill dependencies. Preserve unrelated installed skills and existing global instructions.
+```
+
+### Install one skill for a specific agent
+
+```text
+Install only delegate-to-agent from https://github.com/mitchellbernstein/skills using the claude/ copy for Claude Code. Include bundled files and required skill dependencies. Preserve unrelated installed skills and existing global instructions.
+```
