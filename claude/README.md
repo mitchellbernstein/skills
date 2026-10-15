@@ -14,8 +14,10 @@ target explicitly (`pi`, `codex`, `claude`, or `grok-build`).
 
 ## cstack plugin
 
-`claude/cstack` is a full Claude Code plugin (skills, agents and hooks) ported
-from Cursor's pstack family at https://github.com/cursor/plugins (MIT). Install
+`claude/cstack` is a full Claude Code plugin (skills, agents and hooks). It's an
+**unofficial port** of https://github.com/cursor/plugins (MIT): pstack by Lauren
+Tan (poteto) and related packs by Eric Zakariasson, Dylan Gattey and Cursor. Credit
+belongs to them; see [its credits](cstack/README.md#credits). Install
 it once at user scope and it's available in every project:
 
 ```sh

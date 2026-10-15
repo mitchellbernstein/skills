@@ -146,7 +146,13 @@ skills:
     kind: claude-code-plugin
     harnesses: [claude]
     install: "/plugin marketplace add mitchellbernstein/skills && /plugin install cstack@mitchell-skills"
+    origin: port
     upstream: https://github.com/cursor/plugins
+    authors:
+      - Lauren Tan (poteto) - pstack
+      - Eric Zakariasson - cursor-team-kit, cli-for-agent
+      - Dylan Gattey - dyl-stack
+      - Cursor - thermos, teaching, advisor, ralph-loop
     license: MIT
     includes: [skills, agents, hooks]
     requires: []

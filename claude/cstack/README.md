@@ -1,6 +1,17 @@
 # cstack
 
-Claude Code port of [cursor/plugins](https://github.com/cursor/plugins) (MIT). Skills and agents from `pstack`, `thermos`, `cursor-team-kit`, `cli-for-agent`, `teaching` and `dyl-stack`, merged into one plugin.
+> **Unofficial port, not original work.** cstack repackages skills, agents and hooks from [cursor/plugins](https://github.com/cursor/plugins) so they run in Claude Code. The ideas and content belong to the authors below. This repo only adds the Claude Code adaptation. It isn't affiliated with or endorsed by them or by Cursor.
+
+## Credits
+
+| Upstream pack | Author | License |
+| --- | --- | --- |
+| pstack | Lauren Tan ([@poteto](https://github.com/poteto)) | MIT |
+| cursor-team-kit, cli-for-agent | Eric Zakariasson | MIT |
+| dyl-stack | Dylan Gattey | MIT |
+| thermos, teaching, advisor, ralph-loop | Cursor | MIT |
+
+The original copyright and license notice is kept in [LICENSE](LICENSE). If you use these skills, credit the authors above.
 
 Install:
 
