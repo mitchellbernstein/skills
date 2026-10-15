@@ -1,6 +1,6 @@
 # Requirements
 
-dyl-stack layers on other plugins. Check the ones your skill needs before any work. If one is missing, stop, name it, and tell the user to run `/add-plugin <name>`. Do not improvise the missing piece.
+dyl-stack layers on other plugins. Check the ones your skill needs before any work. If one is missing, stop, name it, and tell the user to install cstack with `/plugin install cstack@mitchell-skills` (it bundles pstack, thermos, and the cursor-team-kit skills). Do not improvise the missing piece.
 
 | Plugin | Installed when | Reach its files |
 |---|---|---|

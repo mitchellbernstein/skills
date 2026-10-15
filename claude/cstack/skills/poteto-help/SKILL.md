@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 Answer the user's question about pstack, hand them a prompt they can send, and link the file the answer came from. For a help question, don't start the work. The user asked how, and a pstack run spends real tokens, so let them send the prompt.
 
-A message that asks for work, such as "use pstack to fix this bug", is not a help question. Read [`poteto-mode`](../poteto-mode/SKILL.md), do the work under it, and mention once that a Custom Mode keeps it on.
+A message that asks for work, such as "use pstack to fix this bug", is not a help question. Read [`poteto-mode`](../poteto-mode/SKILL.md), do the work under it, and mention once that starting each task with `/poteto-mode` keeps it on.
 
 This file maps questions to the skills and guide pages that hold the answers. Those files own the details. Read the file you route to before you quote it, and trust it when it disagrees with this map. The links here point into the installed plugin, which the user may not be able to open, so give the user the file's public copy: `https://github.com/mitchellbernstein/skills/blob/main/claude/cstack/` followed by its path.
 
@@ -34,7 +34,7 @@ When the model rule is missing and it matters, ask whether the user wants to pic
 
 ## Get set up
 
-1. Install with `/add-plugin pstack` in chat, or from Customize in the sidebar.
+1. Install with `/plugin marketplace add mitchellbernstein/skills`, then `/plugin install cstack@mitchell-skills`. Skills show in the `/` menu as `/cstack:<name>`.
 2. Run [`/setup-pstack`](../setup-pstack/SKILL.md). It asks for a reasoning budget, maps a model to each role, and writes a rule. The rule applies to new chats.
 3. Start a real task with `/poteto-mode`, a goal, and a check that can pass or fail.
 
@@ -42,7 +42,7 @@ Installing changes nothing until the user invokes a skill. Only `/setup-pstack` 
 
 If cost is the worry, say where the tokens go and how to spend fewer. pstack spends extra tokens on subagents and review panels. Rerun `/setup-pstack` and pick a smaller budget or cheaper models. A role set to `auto` or `inherit-parent` runs on the chat's model, which saves tokens when the chat runs on Auto or a cheaper model. A shorter panel list runs fewer subagents, one for each entry. Save `/poteto-mode` for work that needs rigor.
 
-pstack is built for Claude Code. Its skills use the Agent Skills format, so other tools can read them. But most workflow skills, including `/poteto-mode`, `/how`, `/why`, and `/teach`, spawn Claude Code subagents with per-role models, and Custom Modes and `/loop` are Claude Code features, so those parts may not work there.
+pstack is built for Claude Code. Its skills use the Agent Skills format, so other tools can read them. But most workflow skills, including `/poteto-mode`, `/how`, `/why`, and `/teach`, spawn Claude Code subagents with per-role models, and `/loop` is a Claude Code feature, so those parts may not work there.
 
 ## Start a task with `/poteto-mode`
 
@@ -50,9 +50,8 @@ pstack is built for Claude Code. Its skills use the Agent Skills format, so othe
 
 Whether `/poteto-mode` stays on depends on how the user starts it:
 
-- Enter on `/poteto-mode` attaches the skill to one message. It fades as the chat moves on.
-- Option+Enter on Mac or Alt+Enter on Windows, or Use as Mode from the skill entry, makes it a Custom Mode. It stays in context every turn until the user exits the mode, and it stays out of casual turns.
-- Claude Code's docs list Custom Modes in the Agents Window and the CLI. Elsewhere, start each new task with `/poteto-mode`.
+- `/poteto-mode` loads the skill for that message. It fades as the chat moves on.
+- Claude Code has no Custom Modes, so start each new task with `/poteto-mode` to keep it on.
 
 Link [Claude Code skills docs](https://code.claude.com/docs/en/skills) when this comes up. Mid-chat, "new task" makes the mode match a fresh playbook. `/poteto-mode` already uses `poteto-agent` for the subagents its playbook steps spawn. To get the same style from a subagent of your own, spawn it with `subagent_type: "poteto-agent"`.
 
@@ -107,7 +106,7 @@ Close calls:
 Not in pstack:
 
 - `/deslop`, `control-cli`, and `control-ui` ship in the `cstack` plugin.
-- `/loop` and `/create-skill` are Claude Code built-ins.
+- `/loop` and `skill-creator` are Claude Code built-ins.
 - pstack has no `/orchestrate` skill. Orchestrate is a `/poteto-mode` playbook. If the slash menu shows `/orchestrate`, another plugin provides it.
 
 ## Playbooks and principles
@@ -131,7 +130,7 @@ Principles are one-rule skills that `/poteto-mode` reads and cites in its replie
 
 | Symptom | Fix |
 |---|---|
-| The mode stopped applying after a few turns | It was started with Enter. Start it as a Custom Mode, or start each task with `/poteto-mode`. |
+| The mode stopped applying after a few turns | Invoking `/poteto-mode` attaches it to one message. Start each task with `/poteto-mode`. |
 | A question got treated as the next step of the last task | Say "new task", or say the turn doesn't need the mode. |
 | A new model choice had no effect | The rule from `/setup-pstack` applies to new chats. Start one. |
 | Runs cost more than expected | See the cost paragraph under Get set up. |
