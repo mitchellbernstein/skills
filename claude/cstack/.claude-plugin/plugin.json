@@ -1,7 +1,7 @@
 {
   "name": "cstack",
-  "version": "0.1.0",
-  "description": "Unofficial Claude Code port of cursor/plugins (pstack by Lauren Tan, plus thermos, cursor-team-kit, cli-for-agent, teaching, dyl-stack, advisor, ralph-loop). Credit belongs to the original authors.",
+  "version": "0.2.0",
+  "description": "Unofficial Claude Code port of cursor/plugins: pstack by Lauren Tan, plus thermos, cursor-team-kit, cli-for-agent, teaching, dyl-stack, advisor, ralph-loop, agent-compatibility, create-plugin, continual-learning, orchestrate, cursor-sdk, origin-apps, grok-voice and the canvases. Credit belongs to the original authors.",
   "author": {
     "name": "Lauren Tan (poteto), Eric Zakariasson, Dylan Gattey and Cursor; Claude Code port by Mitchell Bernstein"
   },
@@ -12,6 +12,9 @@
     "thermos",
     "workflow",
     "review",
-    "subagents"
+    "subagents",
+    "agent-compatibility",
+    "orchestrate",
+    "continual-learning"
   ]
 }

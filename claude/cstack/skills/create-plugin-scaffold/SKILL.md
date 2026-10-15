@@ -1,6 +1,6 @@
 ---
 name: create-plugin-scaffold
-description: "Create a new Claude Code plugin scaffold with a valid .claude-plugin/plugin.json, component directories (skills, agents, hooks, MCP), and marketplace.json wiring. Use when starting a new Claude Code plugin, running /create-plugin, or adding a plugin to a multi-plugin marketplace repository."
+description: "Create a new Claude Code plugin scaffold with a valid .claude-plugin/plugin.json, component directories (skills, agents, hooks, MCP), and marketplace.json wiring. Use when starting a new Claude Code plugin, asking to create or scaffold a plugin, or adding a plugin to a multi-plugin marketplace repository."
 argument-hint: "<plugin-name> [purpose]"
 ---
 
@@ -79,5 +79,3 @@ If the user explicitly asks for another location (inside an existing repo, a mar
 - Marketplace entry (if applicable)
 - `claude plugin validate` result and a short report of required fields and component metadata
 - How to load it: next session or `/reload-plugins` for `~/.claude/skills/`, `claude --plugin-dir <path>` elsewhere, or `/plugin marketplace add <repo>` + `/plugin install <name>@<marketplace>` for a marketplace
-
-<!-- Ported from cursor/plugins create-plugin (Cursor, MIT) for Claude Code. -->

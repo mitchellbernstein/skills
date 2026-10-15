@@ -58,7 +58,7 @@ metadata.
 | [audit-email-deliverability](shared/audit-email-deliverability/SKILL.md) | Diagnose and fix SPF, DKIM, DMARC, and report delivery. | All four |
 | [record-browser-proof](shared/record-browser-proof/SKILL.md) | Record browser verification tied to the tested revision. | All four |
 | [setup-xai-twilio-cloudflare-sip](shared/setup-xai-twilio-cloudflare-sip/SKILL.md) | Set up or debug xAI phone routing through Twilio and optional Cloudflare Workers. | All four |
-| [cstack](claude/cstack/README.md) | Claude Code plugin: unofficial port of Cursor's pstack family (82 skills, agents, hooks). **Not original work: see [Attribution](#attribution).** | Claude Code |
+| [cstack](claude/cstack/README.md) | Claude Code plugin: unofficial port of Cursor's pstack family (103 skills, 17 agents, hooks). **Not original work: see [Attribution](#attribution).** | Claude Code |
 
 "All four" means Codex, Claude Code, Cursor, and Grok Build.
 
@@ -86,7 +86,7 @@ Current ports:
 
 | Here | Original work | Authors | License |
 | --- | --- | --- | --- |
-| [`claude/cstack`](claude/cstack/README.md) | [cursor/plugins](https://github.com/cursor/plugins): pstack, thermos, cursor-team-kit, cli-for-agent, teaching, dyl-stack, advisor, ralph-loop | Lauren Tan ([@poteto](https://github.com/poteto)), Eric Zakariasson, Dylan Gattey, and the Cursor team | MIT |
+| [`claude/cstack`](claude/cstack/README.md) | [cursor/plugins](https://github.com/cursor/plugins): pstack, thermos, cursor-team-kit, cli-for-agent, teaching, dyl-stack, advisor, ralph-loop, agent-compatibility, create-plugin, continual-learning, orchestrate, cursor-sdk, origin-apps, grok-voice, docs-canvas, pr-review-canvas | Lauren Tan ([@poteto](https://github.com/poteto)), Eric Zakariasson, Dylan Gattey, and the Cursor team | MIT |
 
 You're welcome to use any of it. If you use a port, credit its original authors,
 not this repo. To add a port: keep the upstream LICENSE, add a credits section to

@@ -25,5 +25,6 @@ it once at user scope and it's available in every project:
 /plugin install cstack@mitchell-skills
 ```
 
-Pick up updates with `/plugin marketplace update mitchell-skills`. A daily task
+Pick up updates with `claude plugin marketplace update mitchell-skills`. In the
+Claude app, add the marketplace under Customize > Plugins with auto-sync on. A daily task
 re-syncs it from upstream; see `claude/cstack/UPSTREAM.md`.
