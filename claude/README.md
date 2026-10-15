@@ -11,3 +11,17 @@ matching canonical source remains in `shared/`.
 
 For cross-agent delegation, install `claude/delegate-to-agent` and select the
 target explicitly (`pi`, `codex`, `claude`, or `grok-build`).
+
+## cstack plugin
+
+`claude/cstack` is a full Claude Code plugin (skills, agents and hooks) ported
+from Cursor's pstack family at https://github.com/cursor/plugins (MIT). Install
+it once at user scope and it's available in every project:
+
+```sh
+/plugin marketplace add mitchellbernstein/skills
+/plugin install cstack@mitchell-skills
+```
+
+Pick up updates with `/plugin marketplace update mitchell-skills`. A daily task
+re-syncs it from upstream; see `claude/cstack/UPSTREAM.md`.
