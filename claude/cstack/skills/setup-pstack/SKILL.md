@@ -67,7 +67,7 @@ interrogate reviewers: opus, sonnet
 
 ### 6. Confirm
 
-Tell the user the rule was written and that it applies to new sessions. Re-running this skill updates it.
+Tell the user the rule was written and that it applies to new sessions. Claude Code doesn't auto-load this file; cstack skills read it by path before they spawn subagents. It lives on this machine only: a cloud session starts without it, so run this skill on each machine you use. Re-running this skill updates it.
 
 ### 7. Offer a verification skill (optional)
 
