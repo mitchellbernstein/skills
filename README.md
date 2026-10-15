@@ -11,6 +11,7 @@ cursor/     Cursor-ready copies and Cursor-specific adapters.
 grok-build/ Grok Build-ready copies and xAI-specific adapters.
 shared/     Canonical harness-neutral sources.
 catalog.yaml
+.claude-plugin/marketplace.json  Claude Code marketplace (cstack plugin)
 ```
 
 Compatible skills are intentionally copied into each harness directory so a

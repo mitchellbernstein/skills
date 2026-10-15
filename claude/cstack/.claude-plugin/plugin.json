@@ -1,0 +1,9 @@
+{
+  "name": "cstack",
+  "version": "0.1.0",
+  "description": "Claude Code port of Cursor's plugins (pstack, thermos, cursor-team-kit, cli-for-agent, teaching, dyl-stack): skills and agents for rigorous, parallelizable agent workflows.",
+  "author": { "name": "Airhug (port of Cursor plugins)" },
+  "license": "MIT",
+  "homepage": "https://github.com/cursor/plugins",
+  "keywords": ["pstack", "thermos", "workflow", "review", "subagents"]
+}

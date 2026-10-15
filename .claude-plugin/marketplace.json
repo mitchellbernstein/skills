@@ -1,0 +1,16 @@
+{
+  "name": "mitchell-skills",
+  "owner": {
+    "name": "Mitchell Bernstein"
+  },
+  "metadata": {
+    "description": "Mitchell Bernstein's Claude Code plugins, starting with cstack (port of Cursor's pstack family)."
+  },
+  "plugins": [
+    {
+      "name": "cstack",
+      "source": "./claude/cstack",
+      "description": "Claude Code port of Cursor's pstack, thermos, cursor-team-kit, cli-for-agent, teaching, dyl-stack, advisor and ralph-loop skills, agents and hooks."
+    }
+  ]
+}
