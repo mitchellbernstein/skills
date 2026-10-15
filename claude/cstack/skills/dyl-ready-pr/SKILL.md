@@ -14,7 +14,7 @@ color: blue
 
 Strict sequence to get **one** PR merge-ready.
 
-**Requires** `pstack`, `cstack`, and `thermos`. Check first with [../dyl-mode/references/requirements.md](../dyl-mode/references/requirements.md). Missing → stop and tell the user to run `/add-plugin <name>`.
+**Requires** `pstack`, `cstack`, and `thermos`. Check first with [../dyl-mode/references/requirements.md](../dyl-mode/references/requirements.md). Missing → stop and tell the user to install it (`/plugin install cstack@mitchell-skills` for anything cstack bundles).
 
 Trigger phrases that **must** run this skill (not plain Babysit): "get PR green", "get it green", "make the PR mergeable", "ready the PR", `/dyl-ready-pr`, "`/dyl-review` till green, then `/dyl-ready-pr`".
 

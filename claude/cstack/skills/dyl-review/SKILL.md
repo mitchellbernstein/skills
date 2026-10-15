@@ -16,7 +16,7 @@ Produce a draft PR review the human can paste. This is the one review: thermos a
 
 Input: one or more PR links or numbers. Multiple PRs get one review block each.
 
-**Requires** `pstack`, plus `thermos` at deep depth. Check first with [../dyl-mode/references/requirements.md](../dyl-mode/references/requirements.md). Missing → stop and tell the user to run `/add-plugin <name>`.
+**Requires** `pstack`, plus `thermos` at deep depth. Check first with [../dyl-mode/references/requirements.md](../dyl-mode/references/requirements.md). Missing → stop and tell the user to install it (`/plugin install cstack@mitchell-skills` for anything cstack bundles).
 
 **Forge.** Use `origin pr` when the repo lives on Origin, `gh pr` otherwise. Commands below show both.
 
@@ -34,7 +34,7 @@ Deep when the invoking skill or the human asks for it (deep / thorough / thermo)
    - One Dylan-lens worker (below). Always.
    - Deep only: `thermo-nuclear-review-subagent` and `thermo-nuclear-code-quality-review-subagent` (the pair the `thermos` skill from the Thermos plugin launches), plus exactly one `bugbot` subagent with `Diff: branch changes` (the Claude Code built-in `/review-bugbot`).
    Analysis happens in the workers, not on the main thread.
-3. Every worker uses auto / inherit intelligence (`Task` `model: inherit`, or omit `model`). Do not pin a cheap/fast model for the review judgment pass.
+3. Every worker uses auto / inherit intelligence (`Agent` `model: inherit`, or omit `model`). Do not pin a cheap/fast model for the review judgment pass.
 4. Keep the main thread thin: launch, wait, synthesize. Nothing user-facing until every worker finishes.
 5. On a re-review (same PR, new tip), tell the Dylan-lens worker and the thermos subagents what changed since the last pass and which earlier asks were deliberately skipped, with the reason, so they re-judge instead of repeating. Bugbot takes a fixed prompt and gets no such context.
 

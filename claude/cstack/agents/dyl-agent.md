@@ -1,6 +1,7 @@
 ---
 name: dyl-agent
 description: Routing target for `/dyl-mode` and any request for Dylan's style. Resume an existing `dyl-agent` for the conversation rather than spawning a sibling. Reads the `dyl-mode` skill's `SKILL.md` in full before any work, then the pstack `poteto-mode` skill it layers on. Substituting `general-purpose` skips those reads and drifts.
+background: true
 ---
 
 # Dyl subagent

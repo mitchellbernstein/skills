@@ -1,0 +1,9 @@
+node_modules/
+.DS_Store
+
+# Runtime artifacts written by the orchestrate CLI and by `bun test`.
+bc-*/
+state.json
+plan.json
+handoffs/
+comment-retry-queue.json

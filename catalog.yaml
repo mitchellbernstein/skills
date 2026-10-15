@@ -150,9 +150,9 @@ skills:
     upstream: https://github.com/cursor/plugins
     authors:
       - Lauren Tan (poteto) - pstack
-      - Eric Zakariasson - cursor-team-kit, cli-for-agent
+      - Eric Zakariasson - cursor-team-kit, cli-for-agent, continual-learning, grok-voice
       - Dylan Gattey - dyl-stack
-      - Cursor - thermos, teaching, advisor, ralph-loop
+      - Cursor - thermos, teaching, advisor, ralph-loop, agent-compatibility, create-plugin, orchestrate, cursor-sdk, origin-apps, docs-canvas, pr-review-canvas
     license: MIT
     includes: [skills, agents, hooks]
     requires: []

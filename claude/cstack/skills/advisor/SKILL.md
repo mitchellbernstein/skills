@@ -120,4 +120,4 @@ When files changed since the last consult and a turn ends without one, the plugi
 - The advisor is read-only. Never ask it to edit files or do the task.
 - Never loop on the advisor: at most one follow-up per checkpoint.
 - If the `advisor-subagent` subagent is unavailable (no Agent tool, or a hook denies it), tell the user once and continue without it.
-- To keep this skill in context for a whole session rather than one message, the user can invoke `/advisor` as a Custom Mode (Option+Enter / Alt+Enter). The state file works either way.
+- To keep this skill in context for a whole session rather than one message, the user can re-invoke `/advisor` (Claude Code has no Custom Modes). The state file keeps the mode on either way.

@@ -100,6 +100,20 @@ The fix lands in the repo as architecture, a type, a lint, or a test, so the nex
 
 You get an answer, a prompt to send, and a link to the source. Nothing runs until you send that prompt.
 
+## Check the agent understood before it starts
+
+```text
+/in-your-own-words <long or messy ask>
+```
+
+[`/in-your-own-words`](../../skills/in-your-own-words/SKILL.md) plays back your goal and the problem you're solving, so you can correct a wrong read before any work runs.
+
+```text
+/sharpen <your task>
+```
+
+[`/sharpen`](../../skills/sharpen/SKILL.md) asks how a top expert would approach the task and what you're really after, loosens constraints that don't serve the goal, keeps one outside check that the result is right, and then does the work.
+
 ## Keep a run honest while you're away
 
 ```text
