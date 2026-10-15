@@ -26,6 +26,7 @@ In the Claude app: Customize > Plugins > Add > Add marketplace > `mitchellbernst
 - Agent frontmatter: `is_background` -> `background`; `readonly` -> a `tools` allowlist or `disallowedTools: Write, Edit`. Skill frontmatter such as `disable-model-invocation` is kept as upstream has it.
 - `.cursor/...` paths mapped to `.claude/...`; transcripts live in `~/.claude/projects/<slug>/<session-id>.jsonl` (slug: every non-alphanumeric character becomes `-`).
 - Cursor built-ins (`create-skill`) mapped to `skill-creator`. Claude Code has no Custom Modes; start each task with `/poteto-mode`.
+- Cursor's always-applied `pstack-models.mdc` becomes `~/.claude/cstack-models.md`. Claude Code doesn't auto-load it, so every skill that spawns subagents reads it by that path.
 - Cursor `.mdc` rules (cursor-team-kit, create-plugin) are skills whose description says when they apply; add one to a repo's `CLAUDE.md` to make it always-on.
 - `make-bot-ui` and the benny automations (`automations/benny`) target Claude Code routines instead of Grok Bot / Cursor automations. Routines have no Slack trigger, so benny needs a relay calling the routine's API trigger, or an hourly schedule.
 - agent-compatibility: the `agent-compatibility` npm CLI runs through `scripts/scan.sh`; when a repo has `CLAUDE.md` and no `AGENTS.md`, the CLI's AGENTS.md-only guidance check is weighted 0 so Claude Code repos aren't docked.
