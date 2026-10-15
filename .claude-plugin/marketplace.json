@@ -4,13 +4,13 @@
     "name": "Mitchell Bernstein"
   },
   "metadata": {
-    "description": "Mitchell Bernstein's Claude Code plugins, starting with cstack (port of Cursor's pstack family)."
+    "description": "Claude Code plugins collected by Mitchell Bernstein. Ports are credited to their original authors; see README Attribution."
   },
   "plugins": [
     {
       "name": "cstack",
       "source": "./claude/cstack",
-      "description": "Claude Code port of Cursor's pstack, thermos, cursor-team-kit, cli-for-agent, teaching, dyl-stack, advisor and ralph-loop skills, agents and hooks."
+      "description": "Unofficial Claude Code port of cursor/plugins (pstack by Lauren Tan and related packs). Credit to the original authors."
     }
   ]
 }

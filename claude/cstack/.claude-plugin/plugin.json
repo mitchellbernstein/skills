@@ -1,9 +1,17 @@
 {
   "name": "cstack",
   "version": "0.1.0",
-  "description": "Claude Code port of Cursor's plugins (pstack, thermos, cursor-team-kit, cli-for-agent, teaching, dyl-stack): skills and agents for rigorous, parallelizable agent workflows.",
-  "author": { "name": "Airhug (port of Cursor plugins)" },
+  "description": "Unofficial Claude Code port of cursor/plugins (pstack by Lauren Tan, plus thermos, cursor-team-kit, cli-for-agent, teaching, dyl-stack, advisor, ralph-loop). Credit belongs to the original authors.",
+  "author": {
+    "name": "Lauren Tan (poteto), Eric Zakariasson, Dylan Gattey and Cursor; Claude Code port by Mitchell Bernstein"
+  },
   "license": "MIT",
   "homepage": "https://github.com/cursor/plugins",
-  "keywords": ["pstack", "thermos", "workflow", "review", "subagents"]
+  "keywords": [
+    "pstack",
+    "thermos",
+    "workflow",
+    "review",
+    "subagents"
+  ]
 }
