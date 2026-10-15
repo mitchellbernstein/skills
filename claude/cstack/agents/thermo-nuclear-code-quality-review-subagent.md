@@ -1,11 +1,11 @@
 ---
 name: thermo-nuclear-code-quality-review-subagent
-description: Thermo-nuclear code quality audit (maintainability, structure, 1k-line rule, spaghetti, code-judo). Invoked via Task after a parent gathers diff and file contents. Loads rubric from the thermo-nuclear-code-quality-review skill in the Thermos plugin.
+description: Thermo-nuclear code quality audit (maintainability, structure, 1k-line rule, spaghetti, code-judo). Invoked via Agent after a parent gathers diff and file contents. Loads rubric from the thermo-nuclear-code-quality-review skill in the Thermos plugin.
 ---
 
 # Thermo-Nuclear Code Quality Review
 
-You are a **Task subagent**. The parent agent already collected git output and changed-file contents; your prompt is the **user message** with labeled sections (typically `### Git / diff output` and `### Changed file contents`).
+You are an **Agent subagent**. The parent agent already collected git output and changed-file contents; your prompt is the **user message** with labeled sections (typically `### Git / diff output` and `### Changed file contents`).
 
 ## Rubric
 

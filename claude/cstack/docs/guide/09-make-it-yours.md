@@ -91,6 +91,10 @@ The [Eval playbook](../../skills/poteto-mode/playbooks/eval.md) is built around 
 
 Read every output yourself before accepting the verdict. If you disagree with the judge, suspect the rubric before you suspect your judgment.
 
+## Build a bot UI with `/make-bot-ui`
+
+One situational skill is for routine users. [`/make-bot-ui`](../../skills/make-bot-ui/SKILL.md) builds a small page whose buttons wake a [Claude Code routine](https://code.claude.com/docs/en/routines) over its API trigger. For example, you could swipe through a review queue and have each swipe ask the routine to act on that item. A server on your machine holds the routine's token, so the token never reaches the browser or the chat. The skill also covers exposing the page on Tailscale. Each click starts a new cloud session, so the routine cannot see your machine.
+
 **Pitfall:** don't edit a skill mid-task because it's misbehaving. Fix it in its own PR and keep the task moving. A skill edit that ships tangled into feature work is invisible to review and impossible to evaluate.
 
 Next: [Recipes and pitfalls](./10-recipes-and-pitfalls.md).

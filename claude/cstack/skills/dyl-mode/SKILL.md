@@ -19,7 +19,7 @@ Thin router over pstack's `poteto-mode`. Shared principles and playbook machiner
 
 **Requires** `pstack` and `cstack`. Check first with [references/requirements.md](references/requirements.md), which also says how to reach pstack's hidden skills. Missing → stop and tell the user to run `/add-plugin <name>`.
 
-**Routing.** `/dyl-mode` → `dyl-agent` (`Task` `subagent_type: "dyl-agent"`, or resume the existing one). Do not inline this skill into `general-purpose`.
+**Routing.** `/dyl-mode` → `dyl-agent` (`Agent` `subagent_type: "dyl-agent"`, or resume the existing one). Do not inline this skill into `general-purpose`.
 
 ## Sibling skills (this plugin)
 
